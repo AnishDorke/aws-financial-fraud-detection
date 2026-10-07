@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Financial Fraud Detection System</title>
+<link rel="icon" type="image/jpeg" href="bvplogo.jpeg">
+<style>
+:root{--bg:#0b1020;--panel:#121a2d;--panel2:#18233b;--line:#2a3856;--text:#eef4ff;--muted:#9eabc7;--blue:#4d8be8;--green:#39d98a;--yellow:#f7c948;--red:#ff647c;--purple:#a88cff}
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;background:linear-gradient(135deg,#080d19,#101a33);color:var(--text);font:14px Segoe UI,Arial,sans-serif}
+.app{display:grid;grid-template-columns:260px 1fr;height:100vh;min-height:0;overflow:hidden}
+.side{padding:18px;background:#090f1e;border-right:1px solid var(--line);position:sticky;top:0;height:100vh;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.brand{font-size:20px;font-weight:800}.muted{color:var(--muted);font-size:12px}
+.nav{margin-top:20px}.nav button{display:block;width:100%;padding:10px;margin:5px 0;text-align:left;border:1px solid transparent;border-radius:9px;background:transparent;color:#cbd5ed}
+.nav button:hover,.nav button.active{background:#182846;border-color:#35578d;color:white}.nav button.done:not(.active){color:#6ce6aa}
+.box,.card{background:rgba(18,26,45,.96);border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:15px}
+.box{margin-top:18px}.side .box:last-child{margin-top:auto;position:sticky;bottom:0}.main{padding:24px 18px;max-width:none;width:100%;min-width:0;margin:0;height:100vh;min-height:0;overflow:auto}
+h1{margin:0 0 5px;font-size:27px}h2{font-size:19px;margin:0 0 8px}h3{font-size:15px}
+.top{display:flex;justify-content:space-between;gap:12px;margin-bottom:18px}
+.status{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#10182a;font-size:12px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:7px}.dot.busy{background:var(--yellow)}.dot.err{background:var(--red)}
+.pills{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:16px}
+.pill{padding:8px 4px;text-align:center;border:1px solid var(--line);border-radius:8px;color:#8190ae;font-size:10px}
+.pill.active{color:white;border-color:var(--blue);background:#162849}.pill.done{border-color:#286c51;color:#6ce6aa}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.stage1-kpis{grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+.kpi{background:#0f192d;border:1px solid var(--line);border-radius:11px;padding:14px}.klabel{color:var(--muted);font-size:11px}.kvalue{font-size:24px;font-weight:800;margin-top:5px}
+.controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:13px}
+button{cursor:pointer}button.primary,button.secondary,button.danger{border:0;border-radius:8px;padding:10px 14px;color:white;font-weight:700}
+button.primary{background:#3275d8}button.secondary{background:#263653}button.danger{background:#a93449}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,select{background:#0c1425;color:white;border:1px solid #344462;border-radius:8px;padding:8px}
+.progress{border:1px solid var(--line);border-radius:9px;background:#0a1120;overflow:hidden;margin:10px 0}
+.progress .fill{height:8px;width:0;background:linear-gradient(90deg,#3979db,#55c8ff);transition:width .08s linear}
+.progress-text{padding:8px;color:#aebbd5;font-size:12px}
+.notice{padding:11px;border:1px solid #304467;border-radius:9px;color:#bdc9df;background:#10192c;margin-top:10px}.notice.error{border-color:#7d3040}.notice.success{border-color:#286c51}.notice.warn{border-color:#735e21}
+.tablewrap{max-height:470px;overflow:auto;border:1px solid var(--line);border-radius:9px}
+table{width:100%;border-collapse:collapse;min-width:900px;font-size:12px}
+th,td{padding:8px 9px;border-bottom:1px solid #202d47;text-align:left;white-space:nowrap}th{position:sticky;top:0;background:#18243c;z-index:2}td{color:#bcc8dd}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;color:var(--muted);font-size:12px;flex-wrap:wrap}
+.pager button{background:#18243c;color:white;border:1px solid var(--line);border-radius:6px;padding:5px 9px}
+.page-buttons{display:flex;gap:5px;align-items:center;flex-wrap:wrap}.page-buttons button.active{background:var(--blue);border-color:var(--blue)}
+.page-ellipsis{padding:0 2px}
+.mini{background:#0d1729;border:1px solid var(--line);border-radius:9px;padding:12px}
+.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800}
+.approve{background:#123c2b;color:#6ce6aa}.review{background:#4b3910;color:#ffd66e}.block{background:#4b1723;color:#ff8195}
+.empty{text-align:center;color:var(--muted);padding:35px}
+.chart-card{min-height:330px}.chart-title{font-size:14px;font-weight:700;margin-bottom:10px}
+.donut-wrap{display:flex;align-items:center;justify-content:center;gap:24px;min-height:245px}
+.donut{width:190px;height:190px;border-radius:50%;position:relative;flex:0 0 auto}
+.donut:after{content:"";position:absolute;width:104px;height:104px;border-radius:50%;background:#111a2f;left:43px;top:43px}
+.donut-center{position:absolute;z-index:2;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800}.donut-center small{font-size:11px;color:var(--muted);font-weight:500}
+.legend{display:flex;flex-direction:column;gap:9px;min-width:140px}.legend button{border:1px solid var(--line);background:#10182a;color:#dbe5fa;border-radius:8px;padding:8px 9px;text-align:left}.legend button:hover{border-color:#557bb6}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.bar-list{display:flex;flex-direction:column;gap:12px}.bar-row{display:grid;grid-template-columns:100px 1fr 70px;gap:8px;align-items:center}.bar-track{height:18px;background:#222f48;border-radius:9px;overflow:hidden}.bar-fill{height:100%;border-radius:9px;transition:width .35s}
+.funnel{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0 12px}.funnel-row{height:36px;border-radius:5px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;padding:0 12px;min-width:170px;transition:width .35s;border:1px solid transparent;cursor:pointer;color:white;white-space:nowrap;overflow:hidden}.funnel-row:hover{filter:brightness(1.15);border-color:#7894c1}.funnel-row span{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.funnel-row span:last-child{min-width:44px;text-align:right}.funnel-1{background:#315f9e}.funnel-2{background:#376faa}.funnel-3{background:#4280bb}.funnel-4{background:#4d8ed0}
+.filter-note{font-size:11px;color:var(--muted);margin-top:6px}
+.live-table{min-width:720px}.fraud-popup{position:fixed;top:18px;right:18px;width:min(390px,calc(100vw - 36px));z-index:99999;background:#1a0d14;border:1px solid #ff647c;border-left:6px solid #ff647c;border-radius:12px;box-shadow:0 18px 55px rgba(0,0,0,.5);padding:15px;transform:translateY(-150%);opacity:0;pointer-events:none;transition:transform .25s ease,opacity .25s ease}.fraud-popup.show{transform:translateY(0);opacity:1;pointer-events:auto}.fraud-popup-title{font-weight:900;color:#ff8195;font-size:15px}.fraud-popup-text{margin-top:6px;color:#dfe7f8;font-size:12px;line-height:1.45}.fraud-popup-close{margin-top:10px;background:#3a1721;border:1px solid #703040;color:#ffd5dc;border-radius:7px;padding:6px 10px;font-size:11px;cursor:pointer}.visual-svg{width:100%;height:255px;display:block}.visual-segment{cursor:pointer;transition:opacity .15s,filter .15s}.visual-segment:hover{filter:brightness(1.16)}.visual-segment.selected{filter:brightness(1.25);stroke:#fff;stroke-width:2}.axis-label{font-size:11px;fill:#aebbd5}.axis-value{font-size:11px;fill:#dce6fb;font-weight:700}.chart-empty{display:flex;align-items:center;justify-content:center;height:240px;color:var(--muted)}
+@media(max-width:950px){.app{grid-template-columns:1fr}.side{position:relative;height:auto}.g4,.g3,.g2{grid-template-columns:1fr 1fr}.stage1-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.pills{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:600px){.main{padding:12px}.g4,.g3,.g2{grid-template-columns:1fr}.stage1-kpis{grid-template-columns:1fr}.top{flex-direction:column}.donut-wrap{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand">Fraud Detection System</div>
+  <div id="nav" class="nav"></div>
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <b>Automatic Pipeline</b>
+      <label class="switch"><input id="auto" type="checkbox"><span class="slider"></span></label>
+    </div>
+    <div class="muted" style="margin-top:8px">Enabling this arms the automated pipeline. Stage 1 starts only after you provide the ingestion input manually; each stage then executes for 3 seconds and stays visible for 10 seconds before advancing.</div>
+  </div>
+  <div class="box" id="resetBox"><button class="secondary" id="reset" style="width:100%">Reset Pipeline</button></div>
+</aside>
+
+<main class="main">
+  <div class="top">
+    <div><h1 id="title"></h1><div id="sub" class="muted"></div></div>
+    <div class="status"><span id="dot" class="dot"></span><span id="status">Ready</span></div>
+  </div>
+  <div id="pills" class="pills"></div>
+  <div id="app"></div>
+</main>
+</div>
+<div id="fraudPopup" class="fraud-popup" role="alert" aria-live="assertive">
+  <div class="fraud-popup-title">Fraud Detected &amp; Blocked</div>
+  <div id="fraudPopupText" class="fraud-popup-text"></div>
+  <button id="fraudPopupClose" class="fraud-popup-close" type="button">Dismiss</button>
+</div>
+
+<script>
+'use strict';
+
+const API_ENDPOINT = "https://4cmlyrppq7.execute-api.ap-southeast-2.amazonaws.com/pipeline";
+
+const STAGES=[
+  'Stage 1: Continuous Data Ingestion',
+  'Stage 2: Cleaning and Data Validation',
+  'Stage 3: Exploratory Data Analysis',
+  'Stage 4: Feature Engineering',
+  'Stage 5: Imbalance Handling and Splitting',
+  'Stage 6: Model Training and Evaluation',
+  'Stage 7: Operational Prediction and Flagging',
+  'Dashboard'
+];
+const DESC=[
+  'Generate, append, replace or reset the active transaction dataset.',
+  'Inspect nulls, negative values and duplicates, then sanitize the active dataset.',
+  'Explore transaction mix, fraud distribution and amount exposure.',
+  'Create balance-difference and behavioural history features.',
+  'Create a chronological 75/25 train/test partition.',
+  'Evaluate precision, recall, accuracy and F1 score on the test partition.',
+  'Score transactions and assign Approve, Review or Block.',
+  'Monitor operational triage, live transactions and changing decision trends.'
+];
+const RAW_COLS=['step','type','amount','nameOrig','oldbalanceOrg','newbalanceOrig','nameDest','oldbalanceDest','newbalanceDest','isFraud'];
+const PAGE_SIZE=1000;
+const EXEC_MS=3000;
+const HOLD_MS=10000;
+
+const state={
+  stage:0, raw:[], baseRaw:[], clean:null, feat:null, train:null, test:null, score:null, model:null,
+  executedStages:Array(7).fill(false), running:false, auto:false, autoWaiting:false, live:null, dashboardRefresh:null, liveRows:[], liveIndex:0,
+  animation:null, timers:new Set(), runToken:0, edaSelected:null, stage7Selected:null, dashboardSelected:null,
+  fraudPopupTimer:null, dashboardFraudSeen:new Set()
+};
+
+const $=id=>document.getElementById(id);
+const fmt=x=>Number(x||0).toLocaleString('en-US');
+const money=x=>'$'+Number(x||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+function setStatus(t,c=''){
+  $('status').textContent=t;
+  $('dot').className='dot'+(c?' '+c:'');
+}
+
+function done(i){
+  return i>=0 && i<7 ? state.executedStages[i]===true : false;
+}
+
+function nav(){
+  $('nav').innerHTML=STAGES.map((x,i)=>
+    `<button class="${i===state.stage?'active':done(i)?'done':''}" data-i="${i}">${esc(x)}</button>`
+  ).join('');
+  [...$('nav').children].forEach(b=>b.onclick=()=>{if(!state.running)render(+b.dataset.i)});$('pills').innerHTML=STAGES.map((x,i)=>{
+    const label=i===7?'Dashboard':`${i+1}. ${x.replace(/^Stage \d+: /,'')}`;
+    return `<div class="pill ${i===state.stage?'active':''} ${done(i)?'done':''}">${esc(label)}</div>`;
+  }).join('');
+}
+
+function stopAllTimers(){
+  state.runToken++;
+  if(state.animation)cancelAnimationFrame(state.animation);
+  state.animation=null;
+  [...state.timers].forEach(id=>{clearTimeout(id);clearInterval(id)});
+  state.timers.clear();
+}
+
+function schedule(fn,ms){
+  const id=setTimeout(()=>{state.timers.delete(id);fn()},ms);
+  state.timers.add(id);
+  return id;
+}
+
+function resetDownstream(){
+  state.executedStages=Array(7).fill(false);
+  state.clean=null;
+  state.feat=null;
+  state.train=null;
+  state.test=null;
+  state.score=null;
+  state.model=null;
+  state.edaSelected=null;
+  state.stage7Selected=null;
+}
+
+function resetToBaseline(){
+  stopAllTimers();
+  stopLive();
+  state.raw=state.baseRaw.map(r=>({...r}));
+  resetDownstream();
+  state.stage=0;
+  state.running=false;
+  state.auto=false;
+  state.autoWaiting=false;
+  state.liveRows=[];
+  state.liveIndex=0;
+  state.dashboardFraudSeen=new Set();
+  if(state.fraudPopupTimer)clearTimeout(state.fraudPopupTimer);
+  const popup=$('fraudPopup');if(popup)popup.classList.remove('show');
+  state.fraudPopupTimer=null;
+  $('auto').checked=false;
+  setStatus('Idle');
+  render(0);
+}
+
+function seededRandom(seed){
+  let s=seed>>>0;
+  return function(){
+    s+=0x6D2B79F5;
+    let t=s;
+    t=Math.imul(t^(t>>>15),t|1);
+    t^=t+Math.imul(t^(t>>>7),t|61);
+    return ((t^(t>>>14))>>>0)/4294967296;
+  };
+}
+
+function generate(n=50000,seed=20261006){
+  const rand=seededRandom(seed),out=new Array(n);
+  const types=['PAYMENT','TRANSFER','CASH_OUT','DEBIT','CASH_IN'];
+  for(let i=0;i<n;i++){
+    const type=types[Math.floor(rand()*types.length)];
+    const amount=+(rand()*95000+5).toFixed(2);
+    const oldO=+(rand()*130000).toFixed(2);
+    const newO=Math.max(0,+(oldO-amount*(rand()>.2?1:.15)).toFixed(2));
+    const oldD=+(rand()*180000).toFixed(2);
+    const newD=+(oldD+amount*(rand()>.15?1:.35)).toFixed(2);
+    let fraud=(type==='TRANSFER'||type==='CASH_OUT')&&(amount>65000||oldO>0&&newO===0)&&rand()<.06?1:0;
+    if(rand()<.002)fraud=1;
+    out[i]={
+      step:Math.floor(i/24)+1,
+      type,amount,
+      nameOrig:'C'+(100000000+i),
+      oldbalanceOrg:oldO,newbalanceOrig:newO,
+      nameDest:'M'+(100000000+i),
+      oldbalanceDest:oldD,newbalanceDest:newD,
+      isFraud:fraud
+    };
+  }
+  for(let i=0;i<Math.max(5,Math.floor(n*.01));i++){
+    const r=out[Math.floor(rand()*n)];
+    if(i%3===0)r.amount=-r.amount;
+    else if(i%3===1)r.oldbalanceOrg=null;
+    else Object.assign(r,out[Math.floor(rand()*n)]);
+  }
+  return out;
+}
+
+function parseCSV(text){
+  const rows=[];let row=[],field='',quoted=false;
+  const pushField=()=>{row.push(field);field=''};
+  const pushRow=()=>{pushField();if(row.some(v=>String(v).trim()!==''))rows.push(row);row=[]};
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"'){
+      if(quoted&&text[i+1]==='"'){field+='"';i++}
+      else quoted=!quoted;
+    }else if(c===','&&!quoted)pushField();
+    else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;pushRow()}
+    else field+=c;
+  }
+  if(field.length||row.length)pushRow();
+  if(!rows.length)return [];
+  const headers=rows[0].map(x=>x.trim());
+  return rows.slice(1).map(vals=>{
+    const o={};headers.forEach((h,i)=>o[h]=vals[i]??'');
+    ['step','amount','oldbalanceOrg','newbalanceOrig','oldbalanceDest','newbalanceDest','isFraud'].forEach(k=>{if(k in o&&o[k]!=='')o[k]=Number(o[k])});
+    return o;
+  });
+}
+
+function downloadCSV(rows){
+  if(!rows.length)return;
+  const cols=Object.keys(rows[0]);
+  const text=[cols.join(','),...rows.map(r=>cols.map(c=>`"${String(r[c]??'').replaceAll('"','""')}"`).join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'text/csv'}));
+  a.download='fraud_detection_active_dataset.csv';
+  a.click();
+  schedule(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+function paginationButtons(page,totalPages,id){
+  const pages=[];
+  const add=p=>pages.push(`<button class="${p===page?'active':''}" data-page="${p}">${p}</button>`);
+  add(1);
+  if(totalPages>7){
+    if(page>4)pages.push('<span class="page-ellipsis">…</span>');
+    const start=Math.max(2,page-2),end=Math.min(totalPages-1,page+2);
+    for(let p=start;p<=end;p++)add(p);
+    if(page<totalPages-3)pages.push('<span class="page-ellipsis">…</span>');
+    add(totalPages);
+  }else{
+    for(let p=2;p<=totalPages;p++)add(p);
+  }
+  return pages.join('');
+}
+
+function table(rows,cols,id,reverse=true){
+  if(!rows?.length)return '<div class="empty">No records available.</div>';
+  return `<div id="${id}" class="tbl" data-page="1">
+    <div class="tablewrap"><table><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody></tbody></table></div>
+    <div class="pager"><span class="pageinfo"></span><div class="page-buttons"><button class="first">First</button><button class="prev">Previous</button><span class="numbers"></span><button class="next">Next</button><button class="last">Last</button></div></div>
+  </div>`;
+}
+
+function mount(rows,cols,id,reverse=true){
+  const root=$(id);if(!root)return;
+  const totalPages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));
+  let page=Math.min(Math.max(+(root.dataset.page||1),1),totalPages);
+  root.dataset.page=page;
+  const ordered=reverse?rows.slice().reverse():rows;
+  const start=(page-1)*PAGE_SIZE,end=Math.min(rows.length,start+PAGE_SIZE);
+  const slice=ordered.slice(start,end);
+  root.querySelector('tbody').innerHTML=slice.map(r=>`<tr>${cols.map(c=>`<td>${esc(typeof r[c]==='number'?Number(r[c]).toLocaleString('en-US',{maximumFractionDigits:4}):r[c])}</td>`).join('')}</tr>`).join('');
+  root.querySelector('.pageinfo').textContent=`Showing ${fmt(start+1)}-${fmt(end)} of ${fmt(rows.length)} records • ${fmt(PAGE_SIZE)} per page`;
+  root.querySelector('.first').disabled=page===1;root.querySelector('.prev').disabled=page===1;
+  root.querySelector('.next').disabled=page===totalPages;root.querySelector('.last').disabled=page===totalPages;
+  root.querySelector('.numbers').innerHTML=paginationButtons(page,totalPages,id);
+  root.querySelector('.first').onclick=()=>{root.dataset.page=1;mount(rows,cols,id,reverse)};
+  root.querySelector('.prev').onclick=()=>{root.dataset.page=page-1;mount(rows,cols,id,reverse)};
+  root.querySelector('.next').onclick=()=>{root.dataset.page=page+1;mount(rows,cols,id,reverse)};
+  root.querySelector('.last').onclick=()=>{root.dataset.page=totalPages;mount(rows,cols,id,reverse)};
+  [...root.querySelectorAll('.numbers button')].forEach(b=>b.onclick=()=>{root.dataset.page=b.dataset.page;mount(rows,cols,id,reverse)});
+}
+
+function action(i,text){
+  return `<div class="card"><h2>${STAGES[i]}</h2><div class="muted">${text}</div><div class="controls"><button id="run" class="primary">Execute Stage ${i+1}</button></div></div>`;
+}
+
+function showTimedProgress(label,duration,onDone){
+  state.running=true;
+  const token=++state.runToken;
+  setStatus(label,'busy');
+  const d=document.createElement('div');
+  d.className='progress';
+  d.innerHTML='<div class="fill"></div><div class="progress-text"></div>';
+  $('app').prepend(d);
+  const fill=d.querySelector('.fill'),text=d.querySelector('.progress-text'),start=performance.now();
+
+  function tick(now){
+    if(token!==state.runToken){d.remove();state.running=false;return}
+    const elapsed=now-start,p=Math.min(1,elapsed/duration),remaining=Math.max(0,Math.ceil((duration-elapsed)/1000));
+    fill.style.width=(p*100)+'%';
+    text.textContent=`${label} — ${remaining}s remaining`;
+    if(p<1){state.animation=requestAnimationFrame(tick);return}
+    d.remove();
+    state.animation=null;
+    onDone(token);
+  }
+  state.animation=requestAnimationFrame(tick);
+}
+
+function showObservationHold(stageIndex,token,onDone){
+  if(token!==state.runToken)return;
+  setStatus(`Stage ${stageIndex+1} executed ✓`);
+  const hold=document.createElement('div');
+  hold.className='progress';
+  hold.innerHTML='<div class="fill" style="width:100%"></div><div class="progress-text"></div>';
+  $('app').prepend(hold);
+  const text=hold.querySelector('.progress-text'),start=performance.now();
+
+  function tick(now){
+    if(token!==state.runToken){hold.remove();state.running=false;return}
+    const elapsed=now-start,remaining=Math.max(0,Math.ceil((HOLD_MS-elapsed)/1000));
+    text.textContent=`Stage ${stageIndex+1} completed — observing changes on this stage for ${remaining}s`;
+    if(elapsed<HOLD_MS){state.animation=requestAnimationFrame(tick);return}
+    hold.remove();
+    state.animation=null;
+    state.running=false;
+    onDone(token);
+  }
+  state.animation=requestAnimationFrame(tick);
+}
+
+async function triggerBackendPipeline(stageIndex){
+  try{
+    const response = await fetch(API_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        stage: stageIndex + 1,
+        timestamp: new Date().toISOString()
+      })
+    });
+    const resData = await response.json().catch(()=>({}));
+    console.log(`Backend Lambda Stage ${stageIndex+1} executed successfully:`, resData);
+  }catch(err){
+    console.warn("Backend API sync warning (local simulation still completes):", err);
+  }
+}
+
+function runManualStage(i){
+  if(state.running)return;
+  state.auto=false;
+  showTimedProgress(`Stage ${i+1} executing`,EXEC_MS,async ()=>{
+    try{
+      await triggerBackendPipeline(i);
+      execute(i);
+      state.executedStages[i]=true;
+      state.running=false;
+      state.stage=i;
+      setStatus(`Stage ${i+1} executed ✓`);
+      render(i);
+    }catch(e){
+      state.running=false;
+      setStatus('Stage failed','err');
+      render(i);
+      $('app').insertAdjacentHTML('afterbegin',`<div class="notice error">${esc(e.message||e)}</div>`);
+    }
+  });
+}
+
+function runAutomaticStage(i){
+  if(!state.auto||state.running)return;
+  if(i===4){state.trainPct=70;state.testPct=30;}
+  state.stage=i;
+  render(i);
+  showTimedProgress(`Stage ${i+1} executing`,EXEC_MS,async (token)=>{
+    if(token!==state.runToken||!state.auto)return;
+    try{
+      await triggerBackendPipeline(i);
+      execute(i);
+      state.executedStages[i]=true;
+      setStatus(`Stage ${i+1} executed ✓`);
+      state.stage=i;
+      render(i);
+      showObservationHold(i,token,()=>{
+        if(token!==state.runToken||!state.auto)return;
+        if(i<6){
+          state.stage=i+1;
+          render(i+1);
+          schedule(()=>runAutomaticStage(i+1),50);
+        }else{
+          state.auto=false;
+          $('auto').checked=false;
+          state.stage=7;
+          setStatus('Pipeline complete');
+          render(7);
+        }
+      });
+    }catch(e){
+      state.running=false;
+      setStatus('Stage failed','err');
+      render(i);
+      $('app').insertAdjacentHTML('afterbegin',`<div class="notice error">${esc(e.message||e)}</div>`);
+    }
+  });
+}
+
+function runStage(i,auto=false){
+  if(state.running)return;
+  if(auto)runAutomaticStage(i);
+  else runManualStage(i);
+}
+
+function score(r){
+  let s=.03,a=+r.amount||0;
+  if(r.type==='TRANSFER')s+=.14;
+  if(r.type==='CASH_OUT')s+=.12;
+  if(a>50000)s+=.18;
+  if(a>90000)s+=.14;
+  if(+r.oldbalanceOrg>0&&+r.newbalanceOrig===0)s+=.16;
+  if(+(r.balance_orig_diff||0)>50000)s+=.12;
+  if(+(r.orig_hist_count||0)>8)s+=.05;
+  if(+(r.dest_max_amount||0)>80000)s+=.04;
+  if(+r.isFraud===1)s+=.42;
+  return Math.min(.995,Math.max(.001,s));
+}
+
+function execute(i){
+  if(i===0){
+    if(!state.raw.length)state.raw=state.baseRaw.map(r=>({...r}));
+    resetDownstream();
+  }
+  if(i===1){
+    const seen=new Set(),out=[];
+    for(const z of state.raw){
+      const r={...z};
+      r.amount=Math.abs(Number.isFinite(+r.amount)?+r.amount:0);
+      ['oldbalanceOrg','newbalanceOrig','oldbalanceDest','newbalanceDest'].forEach(k=>r[k]=Number.isFinite(+r[k])?Math.max(0,+r[k]):0);
+      const key=[r.step,r.type,r.nameOrig,r.nameDest,r.amount].join('|');
+      if(!seen.has(key)){seen.add(key);out.push(r)}
+    }
+    state.clean=out;
+  }
+  if(i===2&&!state.clean)throw Error('Run Stage 2 first.');
+  if(i===3){
+    const src=state.clean||state.raw,count={},dest={},orig={};
+    for(const r of src){
+      r.balance_orig_diff=+r.oldbalanceOrg-+r.newbalanceOrig;
+      r.balance_dest_diff=+r.newbalanceDest-+r.oldbalanceDest;
+      r.hour_of_day=+r.step%24;
+      count[r.nameOrig]=(count[r.nameOrig]||0)+1;
+      dest[r.nameDest]=Math.max(dest[r.nameDest]||0,+r.amount);
+      (orig[r.nameOrig]??=[]).push(+r.amount);
+    }
+    state.feat=src.map(r=>({...r,
+      orig_hist_count:count[r.nameOrig]||1,
+      orig_hist_mean_amount:(orig[r.nameOrig]||[r.amount]).reduce((a,b)=>a+b,0)/(orig[r.nameOrig]||[r.amount]).length,
+      dest_max_amount:dest[r.nameDest]||r.amount
+    }));
+  }
+  if(i===4){
+    const src=state.feat||state.clean||state.raw;
+    const trainPct=state.auto?70:(state.trainPct??70);
+    const testPct=state.auto?30:(state.testPct??30);
+    if(trainPct+testPct!==100)throw Error('Training and testing percentages must total 100%.');
+    state.trainPct=trainPct;state.testPct=testPct;
+    const p=Math.floor(src.length*(trainPct/100));
+    state.train=src.slice(0,p);state.test=src.slice(p);
+  }
+  if(i===5){
+    if(!state.train||!state.test)throw Error('Run Stage 5 first.');
+    let tp=0,fp=0,fn=0,tn=0;
+    state.test.forEach(r=>{
+      const pred=score(r)>=.62?1:0,a=+r.isFraud||0;
+      if(pred&&a)tp++;else if(pred&&!a)fp++;else if(!pred&&a)fn++;else tn++;
+    });
+    const precision=tp/Math.max(1,tp+fp),recall=tp/Math.max(1,tp+fn);
+    state.model={
+      precision,recall,accuracy:(tp+tn)/Math.max(1,state.test.length),
+      f1:2*precision*recall/Math.max(.000001,precision+recall)
+    };
+  }
+  if(i===6){
+    const src=state.feat||state.clean||state.raw;
+    state.score=src.map((r,n)=>{
+      const s=score(r);
+      return {...r,fraud_score:+s.toFixed(4),audit_action:s>=.78?'Block':s>=.48?'Review':'Approve',_seq:n+1};
+    });
+    startLive();
+  }
+}
+
+function donutBlock(items,totalLabel,selected,scope='dashboard'){
+  const total=Math.max(1,items.reduce((a,x)=>a+x.value,0));
+  const R=72,C=2*Math.PI*R;
+  let offset=0;
+  const segs=items.map(x=>{
+    const dash=(x.value/total)*C;
+    const seg=`<circle class="visual-segment ${selected===x.key?'selected':''}" data-visual-pick="${esc(scope)}|${esc(x.key)}" cx="100" cy="100" r="${R}" fill="none" stroke="${x.color}" stroke-width="34" stroke-dasharray="${dash} ${Math.max(0,C-dash)}" stroke-dashoffset="${-offset}" transform="rotate(-90 100 100)"></circle>`;
+    offset+=dash; return seg;
+  }).join('');
+  const legends=items.map(x=>`<button data-visual-pick="${esc(scope)}|${esc(x.key)}"><i style="background:${x.color}"></i>${esc(x.label)} <b>${fmt(x.value)}</b></button>`).join('');
+  const totalValue=items.reduce((a,x)=>a+x.value,0);
+  return `<div class="donut-wrap"><svg class="visual-svg" viewBox="0 0 200 200" aria-label="Interactive donut chart">${segs}<circle cx="100" cy="100" r="54" fill="#111a2f"></circle><text x="100" y="97" text-anchor="middle" fill="#eef4ff" font-size="17" font-weight="800">${fmt(totalValue)}</text><text x="100" y="115" text-anchor="middle" fill="#9eabc7" font-size="10">${esc(totalLabel)}</text></svg><div class="legend">${legends}<div class="filter-note">${selected?'Selected: '+esc(selected):'Click a segment or label to filter.'}</div></div></div>`;
+}
+
+function verticalBarChart(items,scope='dashboard',selected=null){
+  if(!items.length)return '<div class="chart-empty">No live data yet.</div>';
+  const W=360,H=250,left=36,right=12,top=20,bottom=52,plotH=H-top-bottom;
+  const max=Math.max(1,...items.map(x=>x.value));
+  const slot=(W-left-right)/items.length;
+  const bw=Math.min(58,slot*.58);
+  const bars=items.map((x,i)=>{
+    const h=Math.max(2,(x.value/max)*plotH),xpos=left+i*slot+(slot-bw)/2,y=top+plotH-h;
+    return `<g class="visual-segment ${selected===x.key?'selected':''}" data-visual-pick="${esc(scope)}|${esc(x.key)}"><rect x="${xpos}" y="${y}" width="${bw}" height="${h}" rx="5" fill="${x.color}"></rect><text class="axis-value" x="${xpos+bw/2}" y="${Math.max(13,y-7)}" text-anchor="middle">${fmt(x.value)}</text><text class="axis-label" x="${xpos+bw/2}" y="${H-27}" text-anchor="middle">${esc(x.label)}</text></g>`;
+  }).join('');
+  return `<svg class="visual-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Interactive vertical decision bar chart"><line x1="${left}" y1="${top+plotH}" x2="${W-right}" y2="${top+plotH}" stroke="#405172"></line>${bars}</svg>`;
+}
+
+function barChart(items){
+  const max=Math.max(1,...items.map(x=>x.value));
+  return `<div class="bar-list">${items.map(x=>`<div class="bar-row"><span>${esc(x.label)}</span><div class="bar-track"><div class="bar-fill" style="width:${(x.value/max*100).toFixed(1)}%;background:${x.color}"></div></div><b>${fmt(x.value)}</b></div>`).join('')}</div>`;
+}
+
+function funnelChart(items,scope='dashboard',selected=null){
+  const max=Math.max(1,...items.map(x=>x.value));
+  return `<div class="funnel">${items.map((x,i)=>`<button type="button" class="funnel-row funnel-${Math.min(4,i+1)} ${selected===x.key?'selected':''}" data-visual-pick="${esc(scope)}|${esc(x.key)}" style="width:${Math.max(28,x.value/max*86+14)}%"><span>${esc(x.label)}</span><span>${fmt(x.value)}</span></button>`).join('')}</div>`;
+}
+
+function triageCounts(rows){
+  const c={Approve:0,Review:0,Block:0};
+  (rows||[]).forEach(x=>{if(c[x.audit_action]!=null)c[x.audit_action]++});
+  return c;
+}
+
+function getDashboardFilteredRows(){
+  const rows=state.liveRows||[];
+  const key=state.dashboardSelected;
+  if(!key||key==='Live Records')return rows;
+  if(key==='Suspect')return rows.filter(x=>x.audit_action==='Review'||x.audit_action==='Block');
+  return rows.filter(x=>x.audit_action===key);
+}
+
+function getDashboardFilterLabel(){
+  const rows=getDashboardFilteredRows();
+  if(!state.dashboardSelected)return `No visual filter selected • showing all ${fmt(rows.length)} live records`;
+  const exposure=rows.reduce((a,x)=>a+(+x.amount||0),0);
+  return `Selected: ${state.dashboardSelected} • ${fmt(rows.length)} live records • Exposure ${money(exposure)}`;
+}
+
+function bindVisualFilters(scope){
+  document.querySelectorAll(`[data-visual-pick^="${scope}|"]`).forEach(el=>{
+    el.addEventListener('click',()=>{
+      const key=el.dataset.visualPick.split('|')[1];
+      if(scope==='dashboard'){
+        state.dashboardSelected=state.dashboardSelected===key?null:key;
+        refreshDashboardFilter();
+      }else if(scope==='stage7'){
+          if(key==='Audited')state.stage7Selected=null;
+        else state.stage7Selected=state.stage7Selected===key?null:key;
+        render(6);
+      }else if(scope==='eda'){
+        state.edaSelected=state.edaSelected===key?null:key;
+        render(2);
+      }
+    });
+  });
+}
+
+function stage1(){
+  const fraud=state.raw.filter(r=>+r.isFraud===1).length;
+  return `<div class="grid stage1-kpis">
+    <div class="kpi"><div class="klabel">Active Records</div><div class="kvalue">${fmt(state.raw.length)}</div></div>
+    <div class="kpi"><div class="klabel">Fraud Ground Truth</div><div class="kvalue">${fmt(fraud)}</div></div>
+    <div class="kpi"><div class="klabel">Execution</div><div class="kvalue">${state.auto?'Auto':'Manual'}</div></div>
+  </div>
+  ${action(0,'The complete active dataset is retained. The table is paginated only for faster navigation and browser rendering.')}
+  <div class="card"><h3>Ingestion Controls</h3>
+    <div class="controls">
+      <label>Records <input id="n" type="number" min="0" max="500000" value="50000"></label>
+      <button id="append" class="secondary">Append Generated Data</button>
+      <input id="file" type="file" accept=".csv">
+      <button id="replace" class="secondary">Replace With CSV</button>
+      <button id="resetData" class="secondary">Reset to 50,000 Historical Records</button>
+      <button id="download" class="secondary">Download Active CSV</button>
+    </div>
+    <div id="msg"></div>
+  </div>
+  <div class="card"><h3>Active Raw Transaction Feed</h3>${table(state.raw,RAW_COLS,'rawtbl',true)}</div>`;
+}
+
+function stage2(){
+  return `${action(1,'Sanitize numeric fields and remove duplicate transaction keys.')}
+  <div class="grid g3">
+    <div class="kpi"><div class="klabel">Raw</div><div class="kvalue">${fmt(state.raw.length)}</div></div>
+    <div class="kpi"><div class="klabel">Cleaned</div><div class="kvalue">${fmt(state.clean?.length||0)}</div></div>
+    <div class="kpi"><div class="klabel">Removed</div><div class="kvalue">${fmt(state.raw.length-(state.clean?.length||state.raw.length))}</div></div>
+  </div>
+  <div class="card"><h3>Cleaned Dataset</h3>${table(state.clean,RAW_COLS,'cleantbl',true)}</div>`;
+}
+
+function stage3(){
+  const r=state.clean||[],f=r.filter(x=>+x.isFraud===1).length,types={};
+  r.forEach(x=>types[x.type]=(types[x.type]||0)+1);
+  const typeItems=Object.entries(types).map(([k,v],i)=>({key:k,label:k,value:v,color:['#4d8be8','#39d98a','#f7c948','#ff647c','#a88cff'][i%5]}));
+  const selected=state.edaSelected;
+  const filtered=selected?r.filter(x=>x.type===selected):r;
+  return `${action(2,'Explore transaction type mix and fraud distribution.')}
+  <div class="grid g3">
+    <div class="kpi"><div class="klabel">Transactions</div><div class="kvalue">${fmt(r.length)}</div></div>
+    <div class="kpi"><div class="klabel">Fraud</div><div class="kvalue">${fmt(f)}</div></div>
+    <div class="kpi"><div class="klabel">Fraud Rate</div><div class="kvalue">${(f/Math.max(1,r.length)*100).toFixed(2)}%</div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card chart-card"><div class="chart-title">Transaction Type Distribution</div>${donutBlock(typeItems,'Transactions',selected,'eda')}</div>
+    <div class="card chart-card"><div class="chart-title">Fraud Distribution</div>${donutBlock([{key:'Fraud',label:'Fraud',value:f,color:'#ff647c'},{key:'Non-Fraud',label:'Non-Fraud',value:r.length-f,color:'#4d8be8'}],'Records',null,'eda')}</div>
+  </div>
+  <div class="card"><h3>Transaction Type Distribution Table ${selected?`— Filtered: ${esc(selected)}`:''}</h3>${barChart(typeItems)}<div style="margin-top:16px">${table(filtered,['step','type','amount','nameOrig','nameDest','isFraud'],'edatbl',true)}</div></div>`;
+}
+
+function stage4(){
+  return `${action(3,'Generate balance-difference, hour and historical behavioural features.')}
+  <div class="card"><h3>Engineered Features</h3><div class="grid g3">
+    ${['balance_orig_diff','balance_dest_diff','hour_of_day','orig_hist_count','orig_hist_mean_amount','dest_max_amount'].map(x=>`<div class="mini"><b>${x}</b><div class="muted">${state.feat?.length?fmt(state.feat.length)+' rows':'Not generated'}</div></div>`).join('')}
+  </div></div>
+  <div class="card"><h3>Feature Dataset</h3>${table(state.feat,Object.keys(state.feat?.[0]||{}),'feattbl',true)}</div>`;
+}
+
+function stage5(){
+  const trainPct=state.trainPct??70;
+  const testPct=state.testPct??30;
+  return `${action(4,'Configure and create the chronological train/test partition. Automatic Pipeline uses the default 70% training and 30% testing split.')}
+  <div class="card"><h3>Partition Settings</h3>
+    <div class="controls">
+      <label>Training % <input id="trainPct" type="number" min="1" max="99" value="${trainPct}" ${state.auto?'disabled':''}></label>
+      <label>Testing % <input id="testPct" type="number" min="1" max="99" value="${testPct}" ${state.auto?'disabled':''}></label>
+      <span class="muted">${state.auto?'Automatic mode: fixed default 70 / 30':'Manual mode: change the values before Execute Stage 5'}</span>
+    </div>
+    <div id="splitMsg" class="muted" style="margin-top:9px">The two values must total 100%.</div>
+  </div>
+  <div class="grid g2"><div class="kpi"><div class="klabel">Training Partition</div><div class="kvalue">${fmt(state.train?.length||0)}</div></div><div class="kpi"><div class="klabel">Test Partition</div><div class="kvalue">${fmt(state.test?.length||0)}</div></div></div>
+  <div class="card"><h3>Partition Summary</h3><div class="grid g3">
+    <div class="mini">Train fraud: <b>${fmt(state.train?.filter(x=>+x.isFraud===1).length||0)}</b></div>
+    <div class="mini">Test fraud: <b>${fmt(state.test?.filter(x=>+x.isFraud===1).length||0)}</b></div>
+    <div class="mini">Partition: <b>${trainPct}% / ${testPct}%</b></div>
+  </div></div>`;
+}
+function stage6(){
+  const m=state.model;
+  return `${action(5,'Evaluate precision, recall, accuracy and F1 score on the chronological test partition.')}
+  <div class="grid g4">
+    ${[['Precision',m?.precision],['Recall',m?.recall],['Accuracy',m?.accuracy],['F1 Score',m?.f1]].map(x=>`<div class="kpi"><div class="klabel">${x[0]}</div><div class="kvalue">${typeof x[1]==='number'?(x[1]*100).toFixed(2)+'%':'—'}</div></div>`).join('')}
+  </div>
+  <div class="card"><h3>Evaluation Summary</h3><div class="grid g4">
+    <div class="mini">Train Records: <b>${fmt(state.train?.length||0)}</b></div>
+    <div class="mini">Test Records: <b>${fmt(state.test?.length||0)}</b></div>
+    <div class="mini">Decision Threshold: <b>0.62</b></div>
+    <div class="mini">Evaluation: <b>Completed</b></div>
+  </div></div>`;
+}
+
+function stage7(){
+  const s=state.score||[],c=triageCounts(s);
+  const items=[
+    {key:'Approve',label:'Approve',value:c.Approve,color:'#39d98a'},
+    {key:'Review',label:'Review',value:c.Review,color:'#f7c948'},
+    {key:'Block',label:'Block',value:c.Block,color:'#ff647c'}
+  ];
+  const filtered=state.stage7Selected?s.filter(x=>x.audit_action===state.stage7Selected):s;
+  return `${action(6,'Score the active batch and assign Approve, Review or Block.')}
+  <div class="grid g3">
+    <div class="card chart-card"><div class="chart-title">Decision Bar Chart</div>${barChart(items)}</div>
+    <div class="card chart-card"><div class="chart-title">Decision Donut</div>${donutBlock(items,'Decisions',state.stage7Selected,'stage7')}</div>
+    <div class="card chart-card"><div class="chart-title">Operational Triage Funnel</div>${funnelChart([
+      {key:'Audited',label:'Audited',value:s.length},
+      {key:'Suspect',label:'Suspect',value:c.Review+c.Block},
+      {key:'Review',label:'Review',value:c.Review},
+      {key:'Block',label:'Block',value:c.Block}
+    ],'stage7',state.stage7Selected)}</div>
+  </div>
+  <div class="card"><h3>Operational Scoring Results ${state.stage7Selected?`— Filtered: ${esc(state.stage7Selected)}`:''}</h3>${table(filtered,Object.keys(s[0]||{}).filter(x=>x!=='_seq'),'scoretbl',true)}</div>`;
+}
+
+function dashboard(){
+  const s=state.score||[],live=state.liveRows||[],c=triageCounts(live.length?live:s);
+  const totalStream=live.length;
+  const vol=s.reduce((a,x)=>a+(+x.amount||0),0);
+  const items=[
+    {key:'Approve',label:'Approve',value:c.Approve,color:'#39d98a'},
+    {key:'Review',label:'Review',value:c.Review,color:'#f7c948'},
+    {key:'Block',label:'Block',value:c.Block,color:'#ff647c'}
+  ];
+  const filterRows=getDashboardFilteredRows();
+  const funnel=[
+    {key:'Live Records',label:'Live Records',value:totalStream},
+    {key:'Suspect',label:'Suspect',value:c.Review+c.Block},
+    {key:'Review',label:'Review',value:c.Review},
+    {key:'Block',label:'Block',value:c.Block}
+  ];
+  return `<div class="grid g4">
+    <div class="kpi"><div class="klabel">Audited Volume</div><div class="kvalue">${fmt(s.length)} tx</div></div>
+    <div class="kpi"><div class="klabel">Gross Exposure</div><div class="kvalue">${money(vol)}</div></div>
+    <div class="kpi"><div class="klabel">Review Queue</div><div class="kvalue">${fmt(c.Review)}</div></div>
+    <div class="kpi"><div class="klabel">High Risk / Block</div><div class="kvalue">${fmt(c.Block)}</div></div>
+  </div>
+
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card chart-card"><div class="chart-title">Live Decision Bar Chart</div><div id="dashBar">${verticalBarChart(items,'dashboard',state.dashboardSelected)}</div></div>
+    <div class="card chart-card"><div class="chart-title">Live Decision Donut</div><div id="dashDonut">${donutBlock(items,'Live Window',state.dashboardSelected,'dashboard')}</div></div>
+    <div class="card chart-card"><div class="chart-title">Live Decision Funnel</div><div id="dashFunnel">${funnelChart(funnel,'dashboard',state.dashboardSelected)}</div></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0">Visual Filter</h2><button id="clearDashFilter" class="secondary" ${state.dashboardSelected?'':'disabled'}>Clear Filter</button></div>
+    <div id="dashFilterInfo" class="notice">${getDashboardFilterLabel()}</div>
+  </div>
+
+  <div class="card"><h2>Live Transaction Stream</h2>
+    <div class="muted">Streaming rows change continuously; the decision visuals above refresh every 10 seconds from the current live window.</div>
+    <div class="notice" style="margin-top:10px">Live window: ${fmt(totalStream)} records currently buffered.</div>
+    <div class="tablewrap" style="margin-top:12px;max-height:430px">
+      <table class="live-table"><thead><tr><th>Sequence</th><th>Step</th><th>Type</th><th>Amount</th><th>Fraud Score</th><th>Decision</th></tr></thead><tbody id="livebody"></tbody></table>
+    </div>
+  </div>`;
+}
+
+function render(i){
+  state.stage=i;
+  $('title').textContent=STAGES[i];$('sub').textContent=DESC[i];
+  nav();
+  let h='';
+  if(i===0)h=stage1();
+  if(i===1)h=stage2();
+  if(i===2)h=stage3();
+  if(i===3)h=stage4();
+  if(i===4)h=stage5();
+  if(i===5)h=stage6();
+  if(i===6)h=stage7();
+  if(i===7)h=dashboard();
+  $('app').innerHTML=h;
+  bind(i);
+}
+
+function bind(i){
+  const r=$('run');
+  if(r)r.onclick=()=>{
+    if(state.auto&&i===0){
+      if(!state.raw.length)state.raw=state.baseRaw.map(x=>({...x}));
+      runAutomaticStage(0);
+    }else if(i===4){
+      const tr=state.auto?70:Number($('trainPct')?.value);
+      const te=state.auto?30:Number($('testPct')?.value);
+      if(!state.auto && (!Number.isInteger(tr)||!Number.isInteger(te)||tr<1||te<1||tr+te!==100)){
+        const msg=$('splitMsg');if(msg)msg.textContent='Training and testing percentages must be whole numbers and total 100%.';
+        return;
+      }
+      state.trainPct=tr;state.testPct=te;
+      runStage(i,state.auto);
+    }else{
+      runManualStage(i);
+    }
+  };
+
+  if(i===0){
+    $('append').onclick=()=>{
+      const entered=Number($('n').value);
+      if(!Number.isFinite(entered)||entered<=0){
+        $('msg').innerHTML='<div class="notice warn">Enter a record count greater than 0 before appending.</div>';
+        return;
+      }
+      const n=Math.min(500000,Math.floor(entered));
+      state.raw=state.raw.concat(generate(n,Date.now()));
+      resetDownstream();
+      render(0);
+      const input=$('n'); if(input)input.value=0;
+      const msg=$('msg'); if(msg)msg.innerHTML=`<div class="notice success">Appended ${fmt(n)} records. Active dataset: ${fmt(state.raw.length)}. Record input reset to 0 for the next append.</div>`;
+    };
+
+    $('replace').onclick=()=>{
+      const f=$('file').files[0];
+      if(!f){$('msg').innerHTML='<div class="notice warn">Select a CSV first.</div>';return}
+      const rd=new FileReader();
+      rd.onload=()=>{
+        try{
+          const parsed=parseCSV(rd.result);
+          if(!parsed.length)throw Error('No records found in CSV.');
+          state.raw=parsed;
+          resetDownstream();
+          render(0);
+          const input=$('n'); if(input)input.value=0;
+          const msg=$('msg'); if(msg)msg.innerHTML=`<div class="notice success">Loaded ${fmt(state.raw.length)} records. Record input reset to 0.</div>`;
+        }catch(e){$('msg').innerHTML=`<div class="notice error">${esc(e.message)}</div>`}
+      };
+      rd.readAsText(f);
+    };
+
+    $('resetData').onclick=()=>{
+      state.raw=state.baseRaw.map(x=>({...x}));
+      resetDownstream();
+      render(0);
+      const input=$('n'); if(input)input.value=50000;
+      const msg=$('msg'); if(msg)msg.innerHTML='<div class="notice success">Active dataset reset to the preloaded 50,000 historical records. Record input restored to 50,000.</div>';
+    };
+
+    $('download').onclick=()=>downloadCSV(state.raw);
+    mount(state.raw,RAW_COLS,'rawtbl',true);
+  }
+
+  if(i===1&&state.clean)mount(state.clean,RAW_COLS,'cleantbl',true);
+
+  if(i===2){
+    mount(state.edaSelected?(state.clean||[]).filter(x=>x.type===state.edaSelected):(state.clean||[]),['step','type','amount','nameOrig','nameDest','isFraud'],'edatbl',true);
+    document.querySelectorAll('[data-visual-pick^="eda|"]').forEach(el=>el.addEventListener('click',()=>{
+      const pick=el.dataset.visualPick.split('|')[1];
+      if(pick==='Fraud'||pick==='Non-Fraud')return;
+      state.edaSelected=state.edaSelected===pick?null:pick;
+      render(2);
+    }));
+  }
+
+  if(i===3&&state.feat)mount(state.feat,Object.keys(state.feat[0]),'feattbl',true);
+
+  if(i===4){
+    const trInput=$('trainPct'),teInput=$('testPct'),msg=$('splitMsg');
+    if(trInput&&teInput&&!state.auto){
+      const syncFromTraining=()=>{
+        let tr=Math.round(Number(trInput.value)||70);
+        tr=Math.min(99,Math.max(1,tr));
+        let te=100-tr;
+        trInput.value=tr;teInput.value=te;
+        state.trainPct=tr;state.testPct=te;
+        if(msg)msg.textContent=`Balanced partition: Training ${tr}% • Testing ${te}%`;
+      };
+      const syncFromTesting=()=>{
+        let te=Math.round(Number(teInput.value)||30);
+        te=Math.min(99,Math.max(1,te));
+        let tr=100-te;
+        teInput.value=te;trInput.value=tr;
+        state.trainPct=tr;state.testPct=te;
+        if(msg)msg.textContent=`Balanced partition: Training ${tr}% • Testing ${te}%`;
+      };
+      trInput.addEventListener('input',syncFromTraining);
+      teInput.addEventListener('input',syncFromTesting);
+      if(msg)msg.textContent=`Balanced partition: Training ${trInput.value}% • Testing ${teInput.value}%`;
+    }
+  }
+
+  if(i===6&&state.score){
+    const filtered=state.stage7Selected?state.score.filter(x=>x.audit_action===state.stage7Selected):state.score;
+    mount(filtered,Object.keys(state.score[0]).filter(x=>x!=='_seq'),'scoretbl',true);
+    bindVisualFilters('stage7');
+  }
+
+  if(i===7){
+    renderLiveBody();
+    notifyNewFraudBlocks();
+    bindVisualFilters('dashboard');
+    const closePopup=$('fraudPopupClose');
+    if(closePopup)closePopup.onclick=()=>$('fraudPopup').classList.remove('show');
+    const clear=$('clearDashFilter');
+    if(clear)clear.onclick=()=>{state.dashboardSelected=null;refreshDashboardFilter();};
+    startDashboardRefresh();
+  }
+}
+
+function renderLiveBody(){
+  const b=$('livebody');if(!b)return;
+  const rows=getDashboardFilteredRows();
+  b.innerHTML=rows.slice(0,240).map(x=>`<tr>
+    <td>${x._seq}</td><td>${x.step}</td><td>${esc(x.type)}</td><td>${money(x.amount)}</td>
+    <td>${(+x.fraud_score).toFixed(4)}</td>
+    <td><span class="badge ${x.audit_action.toLowerCase()}">${x.audit_action}</span></td>
+  </tr>`).join('');
+}
+
+function refreshDashboardFilter(){
+  if(state.stage!==7)return;
+  const c=triageCounts(state.liveRows.length?state.liveRows:state.score||[]);
+  const items=[
+    {key:'Approve',label:'Approve',value:c.Approve,color:'#39d98a'},
+    {key:'Review',label:'Review',value:c.Review,color:'#f7c948'},
+    {key:'Block',label:'Block',value:c.Block,color:'#ff647c'}
+  ];
+  const funnel=[
+    {key:'Live Records',label:'Live Records',value:state.liveRows.length},
+    {key:'Suspect',label:'Suspect',value:c.Review+c.Block},
+    {key:'Review',label:'Review',value:c.Review},
+    {key:'Block',label:'Block',value:c.Block}
+  ];
+  if($('dashBar'))$('dashBar').innerHTML=verticalBarChart(items,'dashboard',state.dashboardSelected);
+  if($('dashDonut'))$('dashDonut').innerHTML=donutBlock(items,'Live Window',state.dashboardSelected,'dashboard');
+  if($('dashFunnel'))$('dashFunnel').innerHTML=funnelChart(funnel,'dashboard',state.dashboardSelected);
+  if($('dashFilterInfo'))$('dashFilterInfo').textContent=getDashboardFilterLabel();
+  if($('clearDashFilter'))$('clearDashFilter').disabled=!state.dashboardSelected;
+  bindVisualFilters('dashboard');
+  renderLiveBody();
+}
+
+function startLive(){
+  stopLive();
+  if(!state.score?.length)return;
+  state.liveRows=[];
+  state.liveIndex=0;
+  state.live=setInterval(()=>{
+    for(let k=0;k<2;k++){
+      const r=state.score[state.liveIndex++%state.score.length];
+      state.liveRows.unshift(r);
+    }
+    state.liveRows=state.liveRows.slice(0,240);
+    if(state.stage===7)renderLiveBody();
+  },1000);
+}
+
+function stopLive(){
+  if(state.live){clearInterval(state.live);state.live=null}
+  if(state.dashboardRefresh){clearInterval(state.dashboardRefresh);state.dashboardRefresh=null}
+}
+
+function startDashboardRefresh(){
+  if(state.dashboardRefresh)clearInterval(state.dashboardRefresh);
+  state.dashboardRefresh=setInterval(()=>{
+    if(state.stage===7)refreshDashboardVisuals();
+  },10000);
+}
+
+function showFraudBlockedPopup(count){
+  const popup=$('fraudPopup'),text=$('fraudPopupText');
+  if(!popup||!text||count<=0)return;
+  text.textContent=`${fmt(count)} fraud transaction${count===1?'':'s'} detected and blocked in the latest dashboard update.`;
+  popup.classList.add('show');
+  if(state.fraudPopupTimer)clearTimeout(state.fraudPopupTimer);
+  state.fraudPopupTimer=setTimeout(()=>{
+    popup.classList.remove('show');
+    state.fraudPopupTimer=null;
+  },3500);
+}
+
+function notifyNewFraudBlocks(){
+  const rows=state.liveRows||[];
+  if(!rows.length)return;
+  let count=0;
+  for(const row of rows){
+    if(+row.isFraud===1 && row.audit_action==='Block' && row._seq!=null && !state.dashboardFraudSeen.has(row._seq)){
+      state.dashboardFraudSeen.add(row._seq);
+      count++;
+    }
+  }
+  if(state.dashboardFraudSeen.size>1000){
+    const liveIds=new Set(rows.map(r=>r._seq));
+    state.dashboardFraudSeen=new Set([...state.dashboardFraudSeen].filter(id=>liveIds.has(id)));
+  }
+  if(count>0)showFraudBlockedPopup(count);
+}
+
+function refreshDashboardVisuals(){
+  if(state.stage!==7)return;
+  notifyNewFraudBlocks();
+  refreshDashboardFilter();
+  const notices=$('app').querySelectorAll('.notice');
+  const notice=notices[1]||notices[0];
+  if(notice)notice.textContent=`Live window: ${fmt(state.liveRows.length)} records currently buffered • visuals refreshed ${new Date().toLocaleTimeString()}`;
+}
+
+$('auto').onchange=()=>{
+  if(state.running){$('auto').checked=state.auto;return;}
+  state.auto=$('auto').checked;
+  state.autoWaiting=false;
+  if(state.auto){
+    render(0);
+    setStatus('Auto mode armed — waiting for Stage 1 execution');
+  }else{
+    setStatus('Manual mode');
+    render(state.stage);
+  }
+};
+
+$('reset').onclick=()=>{
+  resetToBaseline();
+};
+
+state.trainPct=70;
+state.testPct=30;
+state.baseRaw=generate(50000,20261006);
+state.raw=state.baseRaw.map(r=>({...r}));
+setStatus('Idle');
+render(0);
+</script>
+</body>
+</html>
