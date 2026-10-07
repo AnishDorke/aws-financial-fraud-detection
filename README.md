@@ -164,7 +164,7 @@ aws-financial-fraud-detection/
 ### Prerequisites
 
 * AWS CLI installed and configured with appropriate administrative credentials.
-* Amazon S3 bucket for pipeline artifact storage (`fraud-detection-data-anish-syd`).
+* Amazon S3 bucket for pipeline artifact storage (`fraud-detection-data-anish`).
 * Amazon S3 bucket for frontend website hosting.
 
 ### 1. Backend Provisioning
@@ -173,7 +173,7 @@ aws-financial-fraud-detection/
 2. Create a function named `FraudPipelineRunner` using the `Python 3.12` runtime.
 3. Assign an IAM role with the following baseline permissions:
    * `AWSLambdaBasicExecutionRole` (CloudWatch Logging)
-   * Inline policy granting `s3:PutObject` on `arn:aws:s3:::fraud-detection-data-anish-syd/*`
+   * Inline policy granting `s3:PutObject` on `arn:aws:s3:::fraud-detection-data-anish/*`
 4. Copy `backend/lambda_function.py` into the Lambda editor and deploy.
 5. In **Configuration > Environment variables**, add:
    * Key: `DATA_BUCKET_NAME`
